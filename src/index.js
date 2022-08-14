@@ -44,37 +44,104 @@
 // Вместо кнопки «Load more» можно сделать бесконечную загрузку изображений при прокрутке страницы. Мы предоставлям тебе полную свободу действий в реализации, можешь использовать любые библиотеки.
 
 import './css/styles.css';
+import 'simplelightbox/dist/simple-lightbox.min.css';
+
+import fetchImages from './fetchImages';
+
 import Notiflix from 'notiflix';
 import SimpleLightbox from "simplelightbox";
+
+// import { galleryItems } from './gallery-items';
 
 import debounce from 'lodash.debounce';
 
 const refs = {
-  searchBox: document.querySelector('#search-box'),
-  countryList: document.querySelector('.country-list'),
-  countryInfo: document.querySelector('.country-info'),
+  searchForm: document.querySelector('#search-form'),
+  searchInput: document.querySelector('form input'),
+  searchButton: document.querySelector('form button'),
+  gallery: document.querySelector('.gallery'),
 };
+console.log(refs);
+
+refs.searchForm.addEventListener('submit', onInputSearce);
+refs.searchInput.addEventListener('input', handleInput);
+// refs.searchButton.addEventListener('click', handleSubmit);
+
+function handleInput(e) {
+  console.log(e.target.value);
+}
+
+function onInputSearce(e) {
+  e.preventDefault();
+
+  console.log(refs.searchInput.value);
+
+  fetchImages(refs.searchInput.value).then(data => {
+    console.log(data)
+    makeGallery(data);
+  });
+
+  
+}
+
+function makeGallery(data) {
+  console.log('список картинок', data);
+  console.log('список картинок', data.hits[0]);
 
 
+  const { comments, downloads, views, tags, userImageURL } = data[0];
 
-
-{/* <div class="photo-card">
-  <img src="" alt="" loading="lazy" />
+  refs.gallery.innerHTML = `
+ <div class="photo-card">
+  <img src="${userImageURL}" alt="${tags}" loading="lazy" />
   <div class="info">
     <p class="info-item">
-      <b>Likes</b>
+      <b>Likes${comments}</b>
     </p>
     <p class="info-item">
-      <b>Views</b>
+      <b>Views${views}</b>
     </p>
     <p class="info-item">
-      <b>Comments</b>
+      <b>Comments${comments}</b>
     </p>
     <p class="info-item">
-      <b>Downloads</b>
+      <b>Downloads${downloads}</b>
     </p>
   </div>
-</div> */}
+</div>`;
+
+  // refs.searchButton.style.display = 'none';
+  // fetchSearchResults(e.target.value);
+}
+
+// const imagesMarkup = createImageGalleryMarkup(galleryItems);
+
+// refs.gallery.insertAdjacentHTML('beforeend', imagesMarkup);
+
+// const lightbox = new SimpleLightbox('.gallery a', {
+//   captionsData: 'alt',
+//   captionDelay: 250,
+// });
+
+// function createImageGalleryMarkup(galleryItems) {
+//   return galleryItems
+//     .map(({ preview, original, description }) => {
+//       return `
+//         <a 
+//         class="gallery__item"
+//         href="${original}"
+//         onclick="event.preventDefault()">
+//             <img
+//             class="gallery__image"
+//             src="${preview}" 
+//             alt="${description}"
+//             />
+//         </a>
+//     `;
+//     })
+//     .join('');
+// }
+
 
 
 
