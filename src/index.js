@@ -86,12 +86,24 @@ function onInputSearce(e) {
 
 function makeGallery(data) {
   console.log('список картинок', data);
-  console.log('список картинок', data.hits[0]);
+  console.log('одна картинка', data.hits[0]);
+  
+  data.hits.forEach(item => {
+
+    const { comments, downloads, views, tags, userImageURL } = item;
+
+    // const { largeImageURL, webformatURL } = item.webformatURL;
+    // const { user, userImageURL } = item.user;
+    // const { userImageURL } = item.user;
 
 
-  const { comments, downloads, views, tags, userImageURL } = data[0];
 
-  refs.gallery.innerHTML = `
+    const imageItem = document.createElement('li');
+    imageItem.classList.add('gallery__item');
+
+  
+
+  imageItem.innerHTML = `
  <div class="photo-card">
   <img src="${userImageURL}" alt="${tags}" loading="lazy" />
   <div class="info">
@@ -110,10 +122,11 @@ function makeGallery(data) {
   </div>
 </div>`;
 
+    refs.gallery.appendChild(imageItem);
   // refs.searchButton.style.display = 'none';
   // fetchSearchResults(e.target.value);
+})
 }
-
 // const imagesMarkup = createImageGalleryMarkup(galleryItems);
 
 // refs.gallery.insertAdjacentHTML('beforeend', imagesMarkup);

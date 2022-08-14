@@ -10,14 +10,15 @@ body {
   background-color: #fafafa;
   color: #212121;
   line-height: 1.5;
+  padding-top: 10px;
 }
 
-/* #search-box {
+.photo-card {
   font: inherit;
   padding: 8px;
   max-width: 320px;
   margin-bottom: 16px;
-} */
+} 
 
 html {
   padding: 0;
