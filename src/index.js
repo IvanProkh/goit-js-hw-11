@@ -1,12 +1,12 @@
 
-import './css/styles.css';
-import "simplelightbox/dist/simple-lightbox.min.css";
 
-import fetchImages from './fetchImages';
+import { fetchImages } from './fetchImages';
 
 import Notiflix from 'notiflix';
 import SimpleLightbox from "simplelightbox";
 
+import './css/styles.css';
+import "simplelightbox/dist/simple-lightbox.min.css";
 // import { galleryItems } from './gallery-items';
 
 
@@ -21,6 +21,12 @@ console.log(refs);
 refs.searchForm.addEventListener('submit', onInputSearce);
 refs.searchInput.addEventListener('input', handleInput);
 // refs.searchButton.addEventListener('click', handleSubmit);
+
+
+const lightbox = new SimpleLightbox('.gallery a', {
+  captionsData: 'alt',
+  captionDelay: 250,
+});
 
 function handleInput(e) {
   console.log(e.target.value);
@@ -49,51 +55,60 @@ function makeGallery(data) {
   console.log('список картинок', data);
   console.log('одна картинка', data.hits[0]);
   
-  data.hits.forEach(item => {
+  // data.hits.forEach(item => {
+
+  data.hits.map(item => {
 
     const { comments, downloads, views, tags, webformatURL, largeImageURL } = item;
 
-    // const { largeImageURL, webformatURL } = item.webformatURL;
-    // const { user, userImageURL } = item.user;
-    // const { userImageURL } = item.user;
+    const markup = `
+    
+      <a class="gallery__item" href="${largeImageURL}"  onclick="event.preventDefault()">
+        <img class="gallery__image" src="${webformatURL}" alt="${tags}">
+      </a>
 
-
-
-    const imageItem = document.createElement('a');
-    imageItem.classList.add('gallery__item');
-    imageItem.setAttribute('href', `"${largeImageURL}"`);
-
-
-  imageItem.innerHTML = `
- <div class="photo-card">
-  <img class="gallery__image" src="${webformatURL}" alt="${tags}" loading="lazy" />
-  <div class="info">
-    <p class="info-item">
-      <b>Likes</b> <br> ${comments}
-    </p>
-    <p class="info-item">
-      <b>Views</b> <br> ${views}
-    </p>
-    <p class="info-item">
-      <b>Comments</b> <br> ${comments}
-    </p>
-    <p class="info-item">
-      <b>Downloads</b> <br> ${downloads}
-    </p>
-  </div>
-</div>`
-;
-
-    refs.gallery.appendChild(imageItem);
-  // refs.searchButton.style.display = 'none';
-  // fetchSearchResults(e.target.value);
-})
+    `;
+    refs.gallery.insertAdjacentHTML('beforeend', markup);
+  }
+  ).join('');
 }
 
-const lightbox = new SimpleLightbox('.gallery a', {
-  captionsData: 'alt',
-  captionDelay: 250,
-});
+
+//     const imageItem = document.createElement('a');
+//     imageItem.classList.add('gallery__item');
+//     imageItem.setAttribute('href', `"${largeImageURL}"`);
+//     imageItem.setAttribute('onclick', 'event.preventDefault()');
+
+
+//   imageItem.innerHTML = `
+//  <div class="photo-card">
+//   <img class="gallery__image" src="${webformatURL}" alt="${tags}" loading="lazy" />
+//   <div class="info">
+//     <p class="info-item">
+//       <b>Likes</b> <br> ${comments}
+//     </p>
+//     <p class="info-item">
+//       <b>Views</b> <br> ${views}
+//     </p>
+//     <p class="info-item">
+//       <b>Comments</b> <br> ${comments}
+//     </p>
+//     <p class="info-item">
+//       <b>Downloads</b> <br> ${downloads}
+//     </p>
+//   </div>
+// </div>`
+// ;
+
+//     refs.gallery.appendChild(imageItem);
+  // refs.searchButton.style.display = 'none';
+  // fetchSearchResults(e.target.value);
+// })
+
+// refs.searchInput.value = '';
+// }
+
+
 
 
 

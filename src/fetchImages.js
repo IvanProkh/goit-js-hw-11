@@ -1,19 +1,24 @@
 const KEY = '29269243-d9d53679d5364662a1466d514';
 const URL = 'https://pixabay.com/api/';
-// const search = document.querySelector('form input');
 
-// const options = {
-//     headers: {
-//         'X-Auth-Token': API
-//     }
-// }
+const options = {
+    method: 'GET',
+}
 
-export default function fetchImages(img) {
-    return fetch (`${URL}?key=${KEY}&q=${img}&image_type=photo`).then(response => {
-        //   if (response.status === 200) {
-            return response.json();
-        //   } else {
-        //     return Promise.reject('not found');
-        //   }
-        });
+async function fetchImages(img) {
+    const server = `${URL}?key=${KEY}&q=${img}&image_type=photo`;
+    const response = await fetch(server, options);
+    const data = await response.json();
+
+    if (response.ok) {
+        return data;
+    } else {
+    throw new Error(data.message);
     }
+}
+
+
+
+export { fetchImages };
+
+
