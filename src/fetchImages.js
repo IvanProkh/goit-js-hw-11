@@ -1,5 +1,5 @@
-const KEY = `29269243-d9d53679d5364662a1466d514`;
-const URL = `https://pixabay.com/api/`;
+const KEY = '29269243-d9d53679d5364662a1466d514';
+const URL = 'https://pixabay.com/api/';
 // const search = document.querySelector('form input');
 
 // const options = {
