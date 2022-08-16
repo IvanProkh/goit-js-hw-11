@@ -31,6 +31,7 @@ let lightbox = new SimpleLightbox('.gallery a', {
 refs.searchForm.addEventListener('submit', onInputSearce);
 refs.searchInput.addEventListener('input', handleInput);
 
+refs.searchButton.disabled = true;
 
 async function fetchImages(nameSearch) {
   const KEY = '29269243-d9d53679d5364662a1466d514';
