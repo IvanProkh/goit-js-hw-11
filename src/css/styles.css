@@ -47,7 +47,7 @@ header {
   margin-right: 5px;
   border-color: black;
 }
-.search-form button{
+.search-form button {
   position: absolute;
 
   height: 40px;
@@ -56,7 +56,9 @@ header {
   padding: 3px;
 }
 
-.search-form button:hover {background-color: #fafafa}
+.search-form button:hover {
+  background-color: #fafafa;
+}
 .search-form button:active {
   background-color: skyblue;
 }
@@ -68,7 +70,6 @@ header {
   align-items: center;
   margin-top: 20px;
 }
-
 
 .gallery__item {
   list-style: none;
@@ -88,8 +89,6 @@ header {
   margin: 0;
 }
 
-
-
 .info {
   display: flex;
   flex-wrap: wrap;
@@ -98,7 +97,6 @@ header {
 }
 
 .info-item {
-
-  margin-top: 6px; 
+  margin-top: 6px;
   margin-bottom: 6px;
 }

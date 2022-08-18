@@ -1,14 +1,12 @@
-
-
 // import { fetchImages } from './fetchImages';
 
 import Notiflix from 'notiflix';
-import axios from "axios";
-import SimpleLightbox from "simplelightbox";
+import axios from 'axios';
+import SimpleLightbox from 'simplelightbox';
+import debounce from 'lodash.debounce';
 
 import './css/styles.css';
-import "simplelightbox/dist/simple-lightbox.min.css";
-
+import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const refs = {
   searchForm: document.querySelector('#search-form'),
@@ -21,56 +19,73 @@ let currentPage = 1;
 let perPage = 40;
 let search = '';
 let numOfElements;
+let totalHits;
 
-let lightbox = new SimpleLightbox('.gallery a', {
-  captionsData: 'alt',
-  captionPosition: 'bottom',
-  captionDelay: 250,
-});
+// let lightbox;
 
 refs.searchForm.addEventListener('submit', onInputSearce);
 refs.searchInput.addEventListener('input', handleInput);
 
+
+window.addEventListener('scroll', debounce(checkPosition, 250));
+
 refs.searchButton.disabled = true;
 
 async function fetchImages(nameSearch) {
-  const KEY = '29269243-d9d53679d5364662a1466d514';
-  const URL = 'https://pixabay.com/api/';
-  
-  const response = await axios.get(`${URL}`, {
+  const API_KEY = '29269243-d9d53679d5364662a1466d514';
+  const BASE_URL = 'https://pixabay.com/api/';
+
+  const response = await axios.get(`${BASE_URL}`, {
     params: {
-      key: `${KEY}`,
+      key: `${API_KEY}`,
       q: `${nameSearch}`,
       image_type: 'photo',
       orientation: 'horizontal',
       safesearch: 'true',
       page: `${currentPage}`,
       per_page: `${perPage}`,
-    }
+    },
   });
 
-  console.log("RESPONSE", response);
+  console.log('RESPONSE', response);
+  console.log('nameSearch', nameSearch);
 
-  let totalHits = await response.data.totalHits;
+  // let totalHits = await response.data.totalHits;
+  totalHits = await response.data.totalHits;
+
+  let q = await response.config.params.q;
+  console.log('q', q);
 
   if (totalHits > 0 && currentPage === 1) {
     Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
-  } 
-  // if (totalHits <= numOfElements) {
-  //   Notiflix.Notify.failure("We're sorry, but you've reached the end of search results.");
-  // }
-    console.log(totalHits);
-    console.log(currentPage);
+  }
+
+  console.log("totalHits", totalHits);
+  console.log("currentPage", currentPage);
+
 
   if (totalHits === 0) {
-    Notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again.");
+    Notiflix.Notify.failure(
+      'Sorry, there are no images matching your search query. Please try again.'
+    );
+
   } else if (totalHits <= numOfElements) {
-    Notiflix.Notify.failure("We're sorry, but you've reached the end of search results.");
+    Notiflix.Notify.failure(
+      "We're sorry, but you've reached the end of search results."
+    );
     return;
+
   } else if (totalHits > 0) {
+    currentPage += 1;
     return response;
   }
 }
+
+const lightbox = new SimpleLightbox('.gallery a', {
+  captionsData: 'alt',
+  captionPosition: 'bottom',
+  captionDelay: 250,
+});
 
 function handleInput(e) {
   if (e.target.value.length > 0) {
@@ -84,34 +99,34 @@ function onInputSearce(e) {
   refs.gallery.innerHTML = '';
   search = refs.searchInput.value;
   currentPage = 1;
+  numOfElements = 0;
 
   console.log(search);
 
-  fetchImages(search).then(items => {
-    console.log(items)
-    makeGallery(items);
-
-    lightbox = new SimpleLightbox('.gallery a', {
-      captionsData: 'alt',
-      captionPosition: 'bottom',
-      captionDelay: 250,
+  fetchImages(search)
+    .then(items => {
+      console.log(items);
+      makeGallery(items);
+      lightbox.refresh();
+    })
+    .catch(err => {
+      console.log(err);
     });
-    
-  });
+
   e.target.reset();
 }
-
 
 function makeGallery(items) {
   const allItems = items.data.hits;
 
-  console.log('список картинок', allItems);
-  console.log('одна картинка', allItems[0]);
+  // console.log('список картинок', allItems);
+  // console.log('одна картинка', allItems[0]);
 
-  allItems.map(item => {
-    const { comments, downloads, views, tags, webformatURL, largeImageURL } = item;
-    const markup = 
-    `
+  allItems
+    .map(item => {
+      const { comments, downloads, views, tags, webformatURL, largeImageURL } =
+        item;
+      const markup = `
     <a class="gallery__item" href="${largeImageURL}"  onclick="event.preventDefault()">
       <div class="photo-card">
         <img class="gallery__image" src="${webformatURL}" alt="${tags}">
@@ -131,70 +146,49 @@ function makeGallery(items) {
         </div>
       </div>
     </a>
-    `
-  ;
-    refs.gallery.insertAdjacentHTML('beforeend', markup);
-
-    
-  }
-  ).join('');
+    `;
+      refs.gallery.insertAdjacentHTML('beforeend', markup);
+    })
+    .join('');
 
   numOfElements = document.getElementsByTagName('a').length;
-  console.log(numOfElements); 
-};
+  console.log(numOfElements);
+}
 
-
-// const { height: cardHeight } = document
-//   .querySelector(".gallery")
-//   .firstElementChild.getBoundingClientRect();
-
-// window.scrollBy({
-//   top: cardHeight * 2,
-//   behavior: "smooth",
-// });
-
-
-import debounce from 'lodash.debounce';
-
-// "We're sorry, but you've reached the end of search results.".
-window.addEventListener('scroll', debounce(checkPosition, 250))
-window.addEventListener('resize', debounce(checkPosition, 250))
+// window.addEventListener('resize', debounce(checkPosition, 250));
 
 function checkPosition() {
-  // Нам потребуется знать высоту документа и высоту экрана:
-  const height = document.body.offsetHeight
-  const screenHeight = window.innerHeight
+    const height = document.body.offsetHeight;
+    const screenHeight = window.innerHeight;
 
-  // Они могут отличаться: если на странице много контента,
-  // высота документа будет больше высоты экрана (отсюда и скролл).
+    const scrolled = window.scrollY;
 
-  // Записываем, сколько пикселей пользователь уже проскроллил:
-  const scrolled = window.scrollY
+    const threshold = height - screenHeight / 4;
 
-  // Обозначим порог, по приближении к которому
-  // будем вызывать какое-то действие.
-  // В нашем случае — четверть экрана до конца страницы:
-  const threshold = height - screenHeight / 4
+    const position = scrolled + screenHeight;
 
-  // Отслеживаем, где находится низ экрана относительно страницы:
-  const position = scrolled + screenHeight
+    if (position >= threshold) {
+      console.log(currentPage);
 
-  if (position >= threshold) {
-    currentPage += 1;
+      fetchImages(search)
+        .then(items => {
+          console.log(items);
+          makeGallery(items);
+          lightbox.refresh();
 
-    fetchImages(refs.searchInput.value).then(items => {
-      console.log(items)
-      makeGallery(items);
-      lightbox.refresh();
+          const { height: cardHeight } = document
+            .querySelector('.gallery')
+            .firstElementChild.getBoundingClientRect();
 
-      const { height: cardHeight } = document
-      .querySelector(".gallery")
-      .firstElementChild.getBoundingClientRect();
-
-    window.scrollBy({
-      top: cardHeight * 2,
-      behavior: "smooth",
-    });
-    });
+          window.scrollBy({
+            top: cardHeight * 2,
+            behavior: 'smooth',
+          });
+        })
+        .catch(err => {
+          console.log(err);
+        });
   }
 }
+
+// currentPage < Math.ceil(totalHits / perPage)
