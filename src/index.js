@@ -19,15 +19,10 @@ let currentPage = 1;
 let perPage = 40;
 let search = '';
 let numOfElements;
-let totalHits;
-
-// let lightbox;
 
 refs.searchForm.addEventListener('submit', onInputSearce);
 refs.searchInput.addEventListener('input', handleInput);
-
-
-window.addEventListener('scroll', debounce(checkPosition, 250));
+window.addEventListener('scroll', debounce(scrollMakeGallery, 250));
 
 refs.searchButton.disabled = true;
 
@@ -50,19 +45,14 @@ async function fetchImages(nameSearch) {
   console.log('RESPONSE', response);
   console.log('nameSearch', nameSearch);
 
-  // let totalHits = await response.data.totalHits;
-  totalHits = await response.data.totalHits;
-
-  let q = await response.config.params.q;
-  console.log('q', q);
-
-  if (totalHits > 0 && currentPage === 1) {
-    Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
-  }
+  let totalHits = await response.data.totalHits;
 
   console.log("totalHits", totalHits);
   console.log("currentPage", currentPage);
 
+  if (totalHits > 0 && currentPage === 1) {
+    Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
+  }
 
   if (totalHits === 0) {
     Notiflix.Notify.failure(
@@ -75,7 +65,7 @@ async function fetchImages(nameSearch) {
     );
     return;
 
-  } else if (totalHits > 0) {
+  } else if (totalHits !== numOfElements) {
     currentPage += 1;
     return response;
   }
@@ -100,8 +90,6 @@ function onInputSearce(e) {
   search = refs.searchInput.value;
   currentPage = 1;
   numOfElements = 0;
-
-  console.log(search);
 
   fetchImages(search)
     .then(items => {
@@ -152,12 +140,10 @@ function makeGallery(items) {
     .join('');
 
   numOfElements = document.getElementsByTagName('a').length;
-  console.log(numOfElements);
+  console.log("к-л созданных элементов", numOfElements);
 }
 
-// window.addEventListener('resize', debounce(checkPosition, 250));
-
-function checkPosition() {
+function scrollMakeGallery() {
     const height = document.body.offsetHeight;
     const screenHeight = window.innerHeight;
 
@@ -168,7 +154,6 @@ function checkPosition() {
     const position = scrolled + screenHeight;
 
     if (position >= threshold) {
-      console.log(currentPage);
 
       fetchImages(search)
         .then(items => {
@@ -191,4 +176,7 @@ function checkPosition() {
   }
 }
 
-// currentPage < Math.ceil(totalHits / perPage)
+
+
+// let q = await response.config.params.q;
+// console.log('q', q);
