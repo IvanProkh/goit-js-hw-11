@@ -17,12 +17,13 @@ const refs = {
 
 let currentPage = 1;
 let perPage = 40;
-let search = '';
-let numOfElements;
+let nameSearch = '';
+let numOfElements = 0;
+let totalHits = 0;
 
 refs.searchForm.addEventListener('submit', onInputSearce);
 refs.searchInput.addEventListener('input', handleInput);
-window.addEventListener('scroll', debounce(scrollMakeGallery, 250));
+window.addEventListener('scroll', debounce(scrollMakeGallery, 500));
 
 refs.searchButton.disabled = true;
 
@@ -45,7 +46,7 @@ async function fetchImages(nameSearch) {
   console.log('RESPONSE', response);
   console.log('nameSearch', nameSearch);
 
-  let totalHits = await response.data.totalHits;
+  totalHits = await response.data.totalHits;
 
   console.log("totalHits", totalHits);
   console.log("currentPage", currentPage);
@@ -54,18 +55,13 @@ async function fetchImages(nameSearch) {
     Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
   }
 
-  if (totalHits === 0) {
+  if (totalHits === 0 ) {
     Notiflix.Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
     );
+    }
 
-  } else if (totalHits <= numOfElements) {
-    Notiflix.Notify.failure(
-      "We're sorry, but you've reached the end of search results."
-    );
-    return;
-
-  } else if (totalHits !== numOfElements) {
+   if (totalHits !== numOfElements) {
     currentPage += 1;
     return response;
   }
@@ -78,8 +74,12 @@ const lightbox = new SimpleLightbox('.gallery a', {
 });
 
 function handleInput(e) {
-  if (e.target.value.length > 0) {
+  nameSearch = e.target.value.trim().toLowerCase();
+  console.log(nameSearch);
+  if (nameSearch.length > 0) {
     refs.searchButton.disabled = false;
+  } else {
+    refs.searchButton.disabled = true;
   }
 }
 
@@ -87,15 +87,16 @@ function onInputSearce(e) {
   e.preventDefault();
   refs.searchButton.disabled = true;
   refs.gallery.innerHTML = '';
-  search = refs.searchInput.value;
   currentPage = 1;
   numOfElements = 0;
 
-  fetchImages(search)
+  fetchImages(nameSearch)
     .then(items => {
       console.log(items);
       makeGallery(items);
       lightbox.refresh();
+    }).then(() => {
+
     })
     .catch(err => {
       console.log(err);
@@ -149,30 +150,28 @@ function scrollMakeGallery() {
 
     const scrolled = window.scrollY;
 
-    const threshold = height - screenHeight / 4;
+    const threshold = height - screenHeight / 5;
 
     const position = scrolled + screenHeight;
 
-    if (position >= threshold) {
+    if (position >= threshold && totalHits !== numOfElements) {
 
-      fetchImages(search)
+      fetchImages(nameSearch)
         .then(items => {
           console.log(items);
           makeGallery(items);
           lightbox.refresh();
-
-          const { height: cardHeight } = document
-            .querySelector('.gallery')
-            .firstElementChild.getBoundingClientRect();
-
-          window.scrollBy({
-            top: cardHeight * 2,
-            behavior: 'smooth',
-          });
+          smoothScrollPage()
+          
         })
         .catch(err => {
           console.log(err);
         });
+  } else if (totalHits === numOfElements) {
+    Notiflix.Notify.failure(
+      "We're sorry, but you've reached the end of search results."
+    );
+    return;
   }
 }
 
@@ -180,3 +179,13 @@ function scrollMakeGallery() {
 
 // let q = await response.config.params.q;
 // console.log('q', q);
+
+
+function smoothScrollPage () {
+  const { height: cardHeight } = refs.gallery.firstElementChild.getBoundingClientRect();
+console.log('прокрутка', cardHeight);
+          window.scrollBy({
+            top: cardHeight * 2,
+            behavior: 'smooth',
+          });
+}
