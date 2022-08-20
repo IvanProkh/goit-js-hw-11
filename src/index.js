@@ -12,6 +12,7 @@ const refs = {
   searchForm: document.querySelector('#search-form'),
   searchInput: document.querySelector('form input'),
   searchButton: document.querySelector('form button'),
+  loadMoreButton: document.querySelector('.load-more'),
   gallery: document.querySelector('.gallery'),
 };
 
@@ -23,9 +24,11 @@ let totalHits = 0;
 
 refs.searchForm.addEventListener('submit', onInputSearce);
 refs.searchInput.addEventListener('input', handleInput);
-window.addEventListener('scroll', debounce(scrollMakeGallery, 500));
+refs.loadMoreButton.addEventListener('click', loadMore);
+// window.addEventListener('scroll', debounce(scrollMakeGallery, 500));
 
 refs.searchButton.disabled = true;
+// refs.loadMoreButton.is-hidden = true;
 
 async function fetchImages(nameSearch) {
   const API_KEY = '29269243-d9d53679d5364662a1466d514';
@@ -53,6 +56,7 @@ async function fetchImages(nameSearch) {
 
   if (totalHits > 0 && currentPage === 1) {
     Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
+    refs.loadMoreButton.classList.toggle('is-hidden');
   }
 
   if (totalHits === 0 ) {
@@ -64,6 +68,19 @@ async function fetchImages(nameSearch) {
    if (totalHits !== numOfElements) {
     currentPage += 1;
     return response;
+  }
+
+  if (response.data === "[ERROR 400] \"page\" is out of valid range.") {
+    Notiflix.Notify.failure(
+      'Sorry, there are no images matching your search query. Please try again.'
+    );
+  }
+
+  if (totalHits === numOfElements && totalHits > 0) {
+    Notiflix.Notify.failure(
+      "We're sorry, but you've reached the end of search results."
+    );
+    refs.loadMoreButton.classList.toggle('is-hidden');
   }
 }
 
@@ -86,20 +103,27 @@ function handleInput(e) {
 function onInputSearce(e) {
   e.preventDefault();
   refs.searchButton.disabled = true;
+  // refs.loadMoreButton.disabled = false;
   refs.gallery.innerHTML = '';
   currentPage = 1;
   numOfElements = 0;
+  refs.loadMoreButton.classList.add('is-hidden');
 
   fetchImages(nameSearch)
     .then(items => {
       console.log(items);
       makeGallery(items);
       lightbox.refresh();
-    }).then(() => {
+      
+    }).catch(err => {
+      console.log('Ошибка словлена',err);
+      console.log('данные ошибки', err.response.data);
 
-    })
-    .catch(err => {
-      console.log(err);
+      if (err.response.data === "[ERROR 400] \"page\" is out of valid range.") {
+        Notiflix.Notify.failure(
+          "ОШИБКА 400"
+        );
+      }
     });
 
   e.target.reset();
@@ -144,38 +168,44 @@ function makeGallery(items) {
   console.log("к-л созданных элементов", numOfElements);
 }
 
-function scrollMakeGallery() {
-    const height = document.body.offsetHeight;
-    const screenHeight = window.innerHeight;
+// function scrollMakeGallery() {
+//     const height = document.body.offsetHeight;
+//     const screenHeight = window.innerHeight;
 
-    const scrolled = window.scrollY;
+//     const scrolled = window.scrollY;
 
-    const threshold = height - screenHeight / 5;
+//     const threshold = height - screenHeight / 4;
 
-    const position = scrolled + screenHeight;
+//     const position = scrolled + screenHeight;
 
-    if (position >= threshold && totalHits !== numOfElements) {
+//     if (position >= threshold && totalHits !== numOfElements) {
 
-      fetchImages(nameSearch)
-        .then(items => {
-          console.log(items);
-          makeGallery(items);
-          lightbox.refresh();
-          smoothScrollPage()
+//       fetchImages(nameSearch)
+//         .then(items => {
+//           console.log(items);
+//           makeGallery(items);
+//           lightbox.refresh();
+//           smoothScrollPage()
           
-        })
-        .catch(err => {
-          console.log(err);
-        });
-  } else if (totalHits === numOfElements) {
-    Notiflix.Notify.failure(
-      "We're sorry, but you've reached the end of search results."
-    );
-    return;
-  }
+//         })
+//         .catch(err => {
+//           console.log(err);
+//         });
+// }
+// }
+
+function loadMore()  {
+  fetchImages(nameSearch)
+    .then(items => {
+      console.log(items);
+      makeGallery(items);
+      lightbox.refresh();
+      smoothScrollPage()
+    })
+    .catch(err => {
+      console.log("на кнопке", err);
+    });
 }
-
-
 
 // let q = await response.config.params.q;
 // console.log('q', q);
