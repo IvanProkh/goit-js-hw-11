@@ -51,26 +51,26 @@ async function fetchImages(nameSearch) {
 
   totalHits = await response.data.totalHits;
 
-  console.log("totalHits", totalHits);
-  console.log("currentPage", currentPage);
+  console.log('totalHits', totalHits);
+  console.log('currentPage', currentPage);
 
   if (totalHits > 0 && currentPage === 1) {
     Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
     refs.loadMoreButton.classList.toggle('is-hidden');
   }
 
-  if (totalHits === 0 ) {
+  if (totalHits === 0) {
     Notiflix.Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
     );
-    }
+  }
 
-   if (totalHits !== numOfElements) {
+  if (totalHits !== numOfElements) {
     currentPage += 1;
     return response;
   }
 
-  if (response.data === "[ERROR 400] \"page\" is out of valid range.") {
+  if (response.data === '[ERROR 400] "page" is out of valid range.') {
     Notiflix.Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
     );
@@ -114,15 +114,13 @@ function onInputSearce(e) {
       console.log(items);
       makeGallery(items);
       lightbox.refresh();
-      
-    }).catch(err => {
-      console.log('Ошибка словлена',err);
+    })
+    .catch(err => {
+      console.log('Ошибка словлена', err);
       console.log('данные ошибки', err.response.data);
 
-      if (err.response.data === "[ERROR 400] \"page\" is out of valid range.") {
-        Notiflix.Notify.failure(
-          "ОШИБКА 400"
-        );
+      if (err.response.data === '[ERROR 400] "page" is out of valid range.') {
+        Notiflix.Notify.failure('ОШИБКА 400');
       }
     });
 
@@ -165,7 +163,7 @@ function makeGallery(items) {
     .join('');
 
   numOfElements = document.getElementsByTagName('a').length;
-  console.log("к-л созданных элементов", numOfElements);
+  console.log('к-л созданных элементов', numOfElements);
 }
 
 // function scrollMakeGallery() {
@@ -186,7 +184,7 @@ function makeGallery(items) {
 //           makeGallery(items);
 //           lightbox.refresh();
 //           smoothScrollPage()
-          
+
 //         })
 //         .catch(err => {
 //           console.log(err);
@@ -194,28 +192,31 @@ function makeGallery(items) {
 // }
 // }
 
-function loadMore()  {
+function loadMore() {
   fetchImages(nameSearch)
     .then(items => {
       console.log(items);
       makeGallery(items);
       lightbox.refresh();
-      smoothScrollPage()
+      smoothScrollPage();
     })
     .catch(err => {
-      console.log("на кнопке", err);
+      console.log('на кнопке', err.response.data);
+      if (err.response.data === '[ERROR 400] "page" is out of valid range.') {
+      Notiflix.Notify.failure(
+        "We're sorry, but you've reached the end of search results."
+      );
+      refs.loadMoreButton.classList.add('is-hidden');
+      }
     });
 }
 
-// let q = await response.config.params.q;
-// console.log('q', q);
-
-
-function smoothScrollPage () {
-  const { height: cardHeight } = refs.gallery.firstElementChild.getBoundingClientRect();
-console.log('прокрутка', cardHeight);
-          window.scrollBy({
-            top: cardHeight * 2,
-            behavior: 'smooth',
-          });
+function smoothScrollPage() {
+  const { height: cardHeight } =
+    refs.gallery.firstElementChild.getBoundingClientRect();
+  console.log('прокрутка', cardHeight);
+  window.scrollBy({
+    top: cardHeight * 2,
+    behavior: 'smooth',
+  });
 }
