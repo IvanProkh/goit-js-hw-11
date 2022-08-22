@@ -47,14 +47,11 @@ header {
   margin-right: 5px;
   border-color: white;
   border-radius: 5px;
-
-  
 }
 
 input::placeholder {
   color: #212121;
   pointer-events: none;
-
 }
 
 .search-form button {
@@ -82,7 +79,7 @@ input::placeholder {
   background-color: skyblue;
 }
 
-.search-form button:hover{
+.search-form button:hover {
   background-color: aqua;
 }
 .search-form button:active {
@@ -133,8 +130,6 @@ input::placeholder {
   margin-top: 6px;
   margin-bottom: 6px;
 }
-
-
 
 .is-hidden {
   opacity: 0;
