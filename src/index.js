@@ -103,8 +103,6 @@ function onInputSearce(e) {
   numOfElements = 0;
   refs.loadMoreButton.classList.add('is-hidden');
 
-
-
   fetchImages(nameSearch)
     .then(items => {
       console.log(items);
@@ -122,7 +120,6 @@ function onInputSearce(e) {
 
   e.target.reset();
 }
-
 
 // function makeGallery() {
 //   console.log(fetchImages);
@@ -184,8 +181,6 @@ function makeGallery(items) {
   console.log('к-л созданных элементов', numOfElements);
 }
 
-
-
 function loadMore() {
   fetchImages(nameSearch)
     .then(items => {
@@ -197,10 +192,10 @@ function loadMore() {
     .catch(err => {
       console.log('на кнопке', err.response.data);
       if (err.response.data === '[ERROR 400] "page" is out of valid range.') {
-      Notiflix.Notify.failure(
-        "We're sorry, but you've reached the end of search results."
-      );
-      refs.loadMoreButton.classList.add('is-hidden');
+        Notiflix.Notify.failure(
+          "We're sorry, but you've reached the end of search results."
+        );
+        refs.loadMoreButton.classList.add('is-hidden');
       }
     });
 }
@@ -214,9 +209,6 @@ function smoothScrollPage() {
     behavior: 'smooth',
   });
 }
-
-
-
 
 // function scrollMakeGallery() {
 //     const height = document.body.offsetHeight;
@@ -243,5 +235,3 @@ function smoothScrollPage() {
 //         });
 // }
 // }
-
-
