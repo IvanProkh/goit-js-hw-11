@@ -25,36 +25,32 @@ async function fetchImages(nameSearch) {
   console.log('RESPONSE', response);
   console.log('nameSearch', nameSearch);
 
-  // let totalHits = await response.data.totalHits;
   totalHits = await response.data.totalHits;
 
-  let q = await response.config.params.q;
-  console.log('q', q);
+  console.log('totalHits', totalHits);
+  console.log('currentPage', currentPage);
 
   if (totalHits > 0 && currentPage === 1) {
     Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
+    refs.loadMoreButton.classList.toggle('is-hidden');
   }
-
-  // if (totalHits = perPage) {
-  //   Notiflix.Notify.failure("We're sorry, but you've reached the end of search results.");
-  // }
-
-  console.log(totalHits);
-  console.log(currentPage);
-  console.log(perPage);
 
   if (totalHits === 0) {
     Notiflix.Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
     );
-  } else if (totalHits <= numOfElements) {
+  }
+
+  if (totalHits !== numOfElements) {
+    currentPage += 1;
+    return response;
+  }
+
+  if (totalHits === numOfElements && totalHits > 0) {
     Notiflix.Notify.failure(
       "We're sorry, but you've reached the end of search results."
     );
-    return;
-  } else if (totalHits > 0) {
-    currentPage += 1;
-    return response;
+    refs.loadMoreButton.classList.toggle('is-hidden');
   }
 }
 

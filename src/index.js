@@ -70,12 +70,6 @@ async function fetchImages(nameSearch) {
     return response;
   }
 
-  if (response.data === '[ERROR 400] "page" is out of valid range.') {
-    Notiflix.Notify.failure(
-      'Sorry, there are no images matching your search query. Please try again.'
-    );
-  }
-
   if (totalHits === numOfElements && totalHits > 0) {
     Notiflix.Notify.failure(
       "We're sorry, but you've reached the end of search results."
@@ -103,11 +97,13 @@ function handleInput(e) {
 function onInputSearce(e) {
   e.preventDefault();
   refs.searchButton.disabled = true;
-  // refs.loadMoreButton.disabled = false;
+
   refs.gallery.innerHTML = '';
   currentPage = 1;
   numOfElements = 0;
   refs.loadMoreButton.classList.add('is-hidden');
+
+
 
   fetchImages(nameSearch)
     .then(items => {
@@ -127,13 +123,35 @@ function onInputSearce(e) {
   e.target.reset();
 }
 
+
+// function makeGallery() {
+//   console.log(fetchImages);
+
+//   fetchImages(nameSearch)
+//     .then(items => {
+//       console.log(items);
+//       makeGallery(items);
+//       lightbox.refresh();
+//     })
+//     .catch(err => {
+//       console.log('Ошибка словлена', err);
+//       console.log('данные ошибки', err.response.data);
+
+//       if (err.response.data === '[ERROR 400] "page" is out of valid range.') {
+//         Notiflix.Notify.failure('ОШИБКА 400');
+//       }
+//     });
+
+// }
+
 function makeGallery(items) {
+  console.log('items', items);
   const allItems = items.data.hits;
 
-  // console.log('список картинок', allItems);
-  // console.log('одна картинка', allItems[0]);
+  console.log('список картинок', allItems);
+  console.log('одна картинка', allItems[0]);
 
-  allItems
+  const makeGalleryElements = allItems
     .map(item => {
       const { comments, downloads, views, tags, webformatURL, largeImageURL } =
         item;
@@ -166,31 +184,7 @@ function makeGallery(items) {
   console.log('к-л созданных элементов', numOfElements);
 }
 
-// function scrollMakeGallery() {
-//     const height = document.body.offsetHeight;
-//     const screenHeight = window.innerHeight;
 
-//     const scrolled = window.scrollY;
-
-//     const threshold = height - screenHeight / 4;
-
-//     const position = scrolled + screenHeight;
-
-//     if (position >= threshold && totalHits !== numOfElements) {
-
-//       fetchImages(nameSearch)
-//         .then(items => {
-//           console.log(items);
-//           makeGallery(items);
-//           lightbox.refresh();
-//           smoothScrollPage()
-
-//         })
-//         .catch(err => {
-//           console.log(err);
-//         });
-// }
-// }
 
 function loadMore() {
   fetchImages(nameSearch)
@@ -220,3 +214,34 @@ function smoothScrollPage() {
     behavior: 'smooth',
   });
 }
+
+
+
+
+// function scrollMakeGallery() {
+//     const height = document.body.offsetHeight;
+//     const screenHeight = window.innerHeight;
+
+//     const scrolled = window.scrollY;
+
+//     const threshold = height - screenHeight / 4;
+
+//     const position = scrolled + screenHeight;
+
+//     if (position >= threshold && totalHits !== numOfElements) {
+
+//       fetchImages(nameSearch)
+//         .then(items => {
+//           console.log(items);
+//           makeGallery(items);
+//           lightbox.refresh();
+//           smoothScrollPage()
+
+//         })
+//         .catch(err => {
+//           console.log(err);
+//         });
+// }
+// }
+
+
